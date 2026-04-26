@@ -5,16 +5,9 @@
 
 set -euo pipefail
 
-# 初始化
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILL_ROOT="$(dirname "$SCRIPT_DIR")"
-
-# 加载配置
-if [[ -f "$SKILL_ROOT/.env" ]]; then
-    set -a
-    source "$SKILL_ROOT/.env"
-    set +a
-fi
+# shellcheck source=./init.sh
+source "$SCRIPT_DIR/init.sh"
 
 # 参数
 QUERY="${1:-}"
@@ -27,8 +20,8 @@ if [[ -z "$QUERY" ]]; then
 fi
 
 # Rate limiting
-RATE_LIMIT_FILE="/tmp/.s2_rate_limit"
-MIN_INTERVAL="${S2_MIN_INTERVAL:-1}"
+RATE_LIMIT_FILE="${S2_RATE_LIMIT_FILE}"
+MIN_INTERVAL="${S2_MIN_INTERVAL}"
 
 if [[ -f "$RATE_LIMIT_FILE" ]]; then
     last_time=$(cat "$RATE_LIMIT_FILE" 2>/dev/null || echo "0")
@@ -44,7 +37,7 @@ ENCODED_QUERY=$(printf '%s' "$QUERY" | jq -sRr @uri)
 
 # 构建请求
 API_URL="https://api.semanticscholar.org/graph/v1/paper/search"
-FIELDS="paperId,title,year,authors,venue,journal,citationCount,externalIds,url,abstract"
+FIELDS="paperId,title,year,authors,venue,journal,publicationTypes,citationCount,externalIds,url,openAccessPdf,abstract"
 
 # 执行请求
 RESPONSE=$(curl -s -w "\n%{http_code}" \
@@ -86,19 +79,30 @@ case "$HTTP_CODE" in
                 "✅ 正式发表"
             end) as $recommendation |
 
+            (.externalIds.DOI // "") as $doi |
+            (.externalIds.ArXiv // "") as $arxiv |
+            ((if $doi != "" then ("https://doi.org/" + $doi)
+              elif $arxiv != "" then ("https://arxiv.org/abs/" + $arxiv)
+              elif (.openAccessPdf.url // "") != "" then .openAccessPdf.url
+              else (.url // "") end)) as $best_url |
             {
                 paperId: .paperId,
+                paper_id: .paperId,
                 title: .title,
+                publication_type: ((.publicationTypes[0] // "") | ascii_downcase),
                 year: .year,
                 venue: ($venue // "N/A"),
                 citations: .citationCount,
-                doi: .externalIds.DOI,
-                arxiv_id: .externalIds.ArXiv,
-                url: .url,
+                citation_count: (.citationCount // 0),
+                doi: ($doi | if . == "" then null else . end),
+                arxiv_id: ($arxiv | if . == "" then null else . end),
+                url: $best_url,
+                pdf_url: (.openAccessPdf.url // null),
                 abstract: (.abstract // ""),
                 is_arxiv: $is_arxiv,
                 arxiv_status: $arxiv_status,
                 recommendation: $recommendation,
+                source: "semantic_scholar",
                 authors: [.authors[]? | {
                     name: .name,
                     id: .authorId

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # 初始化脚本 - 加载配置和设置路径变量
 # 用法: source scripts/init.sh
 
@@ -12,6 +12,10 @@ else
     SKILL_ROOT="$(dirname "$SCRIPT_DIR")"
 fi
 
+# 避免污染调用方会话：不在这里强制导出/覆盖 CLAUDE_SKILL_ROOT
+# 内部统一使用 PAPER_DISCOVERY_SKILL_ROOT。
+export PAPER_DISCOVERY_SKILL_ROOT="$SKILL_ROOT"
+
 # 加载 .env 文件（如果存在）
 if [[ -f "$SKILL_ROOT/.env" ]]; then
     set -a
@@ -22,8 +26,24 @@ fi
 # 设置数据目录
 export SKILL_DATA_DIR="$SKILL_ROOT/data"
 
-# Rate limit 配置
-export S2_RATE_LIMIT_FILE="/tmp/.s2_rate_limit"
+# 统一 python 解释器选择（优先 python3）
+if command -v python3 >/dev/null 2>&1; then
+    export PYTHON_BIN="python3"
+elif command -v python >/dev/null 2>&1; then
+    export PYTHON_BIN="python"
+else
+    export PYTHON_BIN=""
+fi
+
+# Rate limit 配置（兼容无 /tmp 的环境）
+if [[ -d "${TMPDIR:-}" ]]; then
+    export S2_RATE_LIMIT_FILE="${TMPDIR}/.s2_rate_limit"
+elif [[ -d "/tmp" ]]; then
+    export S2_RATE_LIMIT_FILE="/tmp/.s2_rate_limit"
+else
+    mkdir -p "$SKILL_ROOT/.tmp"
+    export S2_RATE_LIMIT_FILE="$SKILL_ROOT/.tmp/.s2_rate_limit"
+fi
 export S2_MIN_INTERVAL="${S2_MIN_INTERVAL:-1}"  # 默认 1 秒
 
 # 颜色输出（可选）

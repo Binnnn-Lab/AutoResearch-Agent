@@ -10,3 +10,22 @@ __pycache__/
 # 临时文件
 *.log
 .DS_Store
+
+# 论文检索中间产物（默认不持久化）
+s2_*.json
+papers_*.json
+papers.json
+queries*.json
+verification.json
+report.json
+references_clean.bib
+
+# 结果目录中的临时检索文件
+results/*.json
+
+# 临时分析产物（误生成兜底）
+dois_*.txt
+papers_merged.json
+PYEOF
+extract_dois.py
+merge_papers.py
