@@ -78,16 +78,18 @@ scripts/arxiv_search.sh <query> <limit>
 
 ### Source 4: Google Scholar (MANDATORY - NOT SUPPLEMENTARY)
 
-Purpose: **REQUIRED** coverage of recent 2-year papers (2025-2026)
+Purpose: **REQUIRED** coverage of recent 2-year papers (current year and previous year)
 
 ```
-scripts/google_scholar_search.py <query> --years "2025,2026"
+scripts/google_scholar_search.py <query> --years "<current_year-1>,<current_year>"
 ```
 
 **THIS IS NOT OPTIONAL SUPPLEMENTATION**
 **THIS IS A MANDATORY SOURCE for recent paper coverage**
 **MUST execute regardless of results from all previous three sources**
-**MUST use --years "2025,2026" flag to filter recent papers**
+**MUST use --years flag with current year and previous year to filter recent papers**
+
+> **Note**: Replace `<current_year-1>` and `<current_year>` with actual years. For example, if current year is 2026, use `--years "2025,2026"`.
 
 ## Execution Evidence Requirements
 
@@ -100,7 +102,7 @@ command_used: <exact command>
 query: <search query>
 papers_found: <count>
 status: success|failed|empty
-years_covered: <for Google Scholar: [2025, 2026]>
+years_covered: <for Google Scholar: [current_year-1, current_year]>
 error_message: <if failed>
 ```
 
@@ -111,7 +113,7 @@ Before claiming Step 03 complete, MUST verify:
 - [ ] OpenAlex: executed=true, papers_found >= 0
 - [ ] Semantic Scholar: executed=true, papers_found >= 0
 - [ ] arXiv: executed=true, papers_found >= 0
-- [ ] Google Scholar: executed=true, papers_found >= 0, years="2025,2026"
+- [ ] Google Scholar: executed=true, papers_found >= 0, years="<current_year-1>,<current_year>"
 - [ ] All four sources have execution evidence logged
 - [ ] No source was skipped for ANY reason
 
@@ -120,7 +122,7 @@ Before claiming Step 03 complete, MUST verify:
 1. **FOUR-SOURCE MANDATE**: All four sources MUST be executed
 2. **NO RESULT-BASED SKIP**: Cannot skip based on result count from previous sources
 3. **GOOGLE SCHOLAR IS REQUIRED**: Not supplementary, not optional - mandatory for recent 2-year coverage
-4. **YEAR FILTER ENFORCED**: Google Scholar MUST use --years "2025,2026"
+4. **YEAR FILTER ENFORCED**: Google Scholar MUST use --years with current year and previous year (e.g., "2025,2026" when in 2026)
 5. **CONTINUE ON FAILURE**: If one source fails, continue to next, mark failure in log
 
 ## Failure Handling
@@ -138,7 +140,7 @@ If any source fails:
 2. `openalex_results.json` - OpenAlex results
 3. `semantic_scholar_results.json` - S2 results
 4. `arxiv_results.json` - arXiv results
-5. `google_scholar_results.json` - Google Scholar results (MUST contain 2025-2026 papers)
+5. `google_scholar_results.json` - Google Scholar results (MUST contain papers from recent 2 years: current year and previous year)
 
 ## Example Execution Log Format
 
@@ -166,12 +168,12 @@ Status: success
 [Source 4: Google Scholar]
 Status: EXECUTED
 Query: state machine bug detection protocol
-Years: 2025-2026
+Years: <current_year-1>-<current_year> (e.g., 2025-2026 when in 2026)
 Papers Found: 8
 Status: success
 
 === VERIFICATION ===
 All 4 sources executed: YES
-Google Scholar year filter applied: YES (2025-2026)
+Google Scholar year filter applied: YES (recent 2-year coverage)
 Completion status: COMPLETE
 ```

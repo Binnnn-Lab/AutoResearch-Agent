@@ -7,8 +7,9 @@ This template is for sessions where Zotero MCP tools are available.
 - MCP preflight must be attempted first in current session (HARD GATE).
 - Do not start retrieval, file generation, or ingest before preflight result is reported.
 - If Zotero tools are missing, auto-repair must be attempted before declaring failure:
-  - `claude mcp add --transport http zotero-mcp http://127.0.0.1:23120/mcp`
-  - `claude mcp list`
+  - Read `ZOTERO_MCP_URL` and `ZOTERO_MCP_TRANSPORT` from `.env` file (default: `http://127.0.0.1:23120/mcp`, `http`)
+  - Run: `claude mcp add --transport $ZOTERO_MCP_TRANSPORT zotero-mcp $ZOTERO_MCP_URL`
+  - Run: `claude mcp list`
   - Run preflight again in the same task.
 - Preflight report fields are mandatory:
    - `attempted=true`

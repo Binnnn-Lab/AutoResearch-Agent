@@ -58,7 +58,7 @@ Step 08: 08-deliverables.md
 1. **OpenAlex** - Primary academic source (MANDATORY)
 2. **Semantic Scholar** - Extended academic coverage (MANDATORY - cannot skip even if OpenAlex returned 100 papers)
 3. **arXiv** - Preprint repository (MANDATORY - cannot skip even if previous sources returned sufficient results)
-4. **Google Scholar** - **MANDATORY** recent 2-year coverage (2025-2026) - **THIS IS NOT SUPPLEMENTARY**
+4. **Google Scholar** - **MANDATORY** recent 2-year coverage (current year and previous year, e.g., 2025-2026 when in 2026) - **THIS IS NOT SUPPLEMENTARY**
 
 ### PROHIBITED BEHAVIORS (Will Fail Validation)
 
@@ -71,7 +71,7 @@ Step 08: 08-deliverables.md
 ### Google Scholar Specific Requirements
 
 - **Role**: Dedicated source for recent 2-year paper retrieval
-- **Year Filter**: MUST use current year range (e.g., `--years "2025,2026"` when in 2026)
+- **Year Filter**: MUST use current year range (e.g., `--years "2025,2026"` when in 2026, or dynamically use current year and previous year)
 - **Execution**: MUST run regardless of results from first 3 sources
 - **Not Optional**: Cannot be marked as "supplementary" or "optional"
 

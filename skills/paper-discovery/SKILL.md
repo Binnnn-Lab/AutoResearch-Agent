@@ -31,7 +31,7 @@ If any statement in this file conflicts with `EXECUTION_GATES.md` or `execution-
 Claude Code MUST **automatically** execute the full four-source search protocol in Step 03:
 
 1. **NO USER CONFIRMATION REQUIRED** between sources
-2. **Execute sequentially**: OpenAlex → Semantic Scholar → arXiv → Google Scholar (2025-2026)
+2. **Execute sequentially**: OpenAlex → Semantic Scholar → arXiv → Google Scholar (recent 2-year coverage: current year and previous year)
 3. **Complete all four** before proceeding to Step 04
 4. **Do NOT ask**: "Should I continue?", "Is this enough?", "Do you want me to search other sources?"
 5. **Self-enforce completion**: Even if user only said "找几篇论文", still execute ALL four sources
@@ -43,12 +43,11 @@ Claude Code MUST **automatically** execute the full four-source search protocol 
 - Do not skip or reorder steps.
 - Do not claim completed work without current-session evidence.
 - Use repository scripts under `scripts/` only. No ad-hoc scraping.
-- `scripts/run_pipeline.sh` is removed and must not be invoked.
 - **Mandatory four-source retrieval order** (ALL REQUIRED, NO EXCEPTIONS, AUTOMATIC):
   1. OpenAlex - primary academic source
   2. Semantic Scholar - extended academic coverage  
   3. arXiv - preprint repository
-  4. **Google Scholar (recent 2-year)** - mandatory recent two-year coverage (e.g., 2025-2026)
+  4. **Google Scholar (recent 2-year)** - mandatory recent two-year coverage (current year and previous year, e.g., 2025-2026 when in 2026)
   
   **CRITICAL**: ALL four sources MUST be executed. Cannot skip any source even if others returned sufficient results. Google Scholar is NOT optional supplementation - it is the required source for recent 2-year papers.
 - **Mandatory verification workflow** (NO EXCEPTIONS):
@@ -81,7 +80,7 @@ Before retrieval/synthesis/file generation/ingest:
 - Citation quality: `generate_bibtex.sh`, `verify_citations.sh`, `filter_verified.sh`
 - Expansion: `s2_recommend.sh`, `s2_citations.sh`, `s2_references.sh`
 - Metadata/quality helper: `doi2bibtex.sh`, `crossref_search.sh`, `venue_info.sh`, `author_info.sh`, `ccf_lookup.sh`, `if_lookup.sh`
-- Mandatory fourth source (2025-2026 coverage): `google_scholar_search.py`
+- Mandatory fourth source (recent 2-year coverage): `google_scholar_search.py`
 
 ## Output Defaults
 

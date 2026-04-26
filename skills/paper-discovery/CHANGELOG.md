@@ -21,12 +21,8 @@
 
 - 新增 `EXECUTION_GATES.md` 与 `execution-steps/` 分步执行体系，要求 Claude Code 按文件顺序读取并执行
 - 将执行入口从“单一大 skill 文档”拆分为“主控门禁 + 单步文件”，降低跳步和改序风险
-- 在 step-file gated 模式下禁用 `run_pipeline.sh` 一键黑盒执行，改为显式逐步调用脚本链
-- 删除 `scripts/run_pipeline.sh`，避免误触发一键 pipeline，强制转向 Claude Code 手动分步执行
 - 将 `SKILL.md` 重构为最小路由入口，执行细节全部下沉到 `EXECUTION_GATES.md` 与 `execution-steps/`
 - 新增 `docs/legacy-skill-reference.md` 归档历史长文档说明，并声明为非执行权威来源
-- 删除 `CLAUDE.md`，避免与 `SKILL.md` / `EXECUTION_GATES.md` 形成重复指令源
-- 删除 `docs/legacy-skill-reference.md`，进一步减少非执行文档干扰
 - 明确 `README.md` 与 `SKILL.md` 的文档职责边界
 - 优化 `README.md` 结构，同时保留关键安装说明与使用示例
 - 统一 S2 系列脚本输出字段（增加 `paper_id`、`citation_count`、`pdf_url`）

@@ -54,7 +54,7 @@
 ### MCP 预检强制规则
 
 - 未完成 preflight 前，不得开始检索脚本、Web 兜底检索或生成结果文件。
-- 若 preflight 发现 Zotero 工具缺失，先自动执行一次修复：`claude mcp add --transport http zotero-mcp http://127.0.0.1:23120/mcp` + `claude mcp list`，再重跑 preflight。
+- 若 preflight 发现 Zotero 工具缺失，先自动执行一次修复：读取 `.env` 中的 ZOTERO_MCP_URL 和 ZOTERO_MCP_TRANSPORT 配置，执行 `claude mcp add --transport $ZOTERO_MCP_TRANSPORT zotero-mcp $ZOTERO_MCP_URL`，然后 `claude mcp list`，再重跑 preflight。
 - preflight 结果必须包含：`attempted=true`、`connected=true|false`、`available_tools`、`missing_tools`、`auto_repair_attempted=true|false`、失败原因（失败时）。
 - preflight 在自动修复后仍失败时可继续脚本检索，但最终产物必须包含失败原因和缺失工具列表。
 - preflight 成功后，VERIFIED 条目默认应执行 Zotero 入库（除非用户明确禁用入库）。
@@ -94,6 +94,14 @@ echo 'S2_API_KEY="your_key_here"' > ~/.cursor/skills/paper-discovery/.env
 ```
 
 获取 API Key: https://www.semanticscholar.org/product/api
+
+### Python 依赖（可选）
+
+如果使用 `google_scholar_search.py` 脚本，需要安装 Python 依赖：
+
+```bash
+pip install scholarly>=1.5.0
+```
 
 ---
 
@@ -221,6 +229,24 @@ echo 'OPENALEX_EMAIL="your_email@example.com"' >> ~/.claude/skills/paper-discove
 
 若未启用 Zotero 工具，脚本仍可完成检索、去重、验证和 BibTeX 生成，但不能自动导入 Zotero。
 
+#### Zotero MCP 服务器地址配置
+
+如果 Zotero MCP 服务器运行在非默认地址，可在 `.env` 中配置：
+
+```bash
+# 默认配置（本地默认端口）
+ZOTERO_MCP_URL="http://127.0.0.1:23120/mcp"
+ZOTERO_MCP_TRANSPORT="http"
+
+# 示例：Zotero 运行在不同端口
+ZOTERO_MCP_URL="http://127.0.0.1:8080/mcp"
+
+# 示例：Zotero 运行在远程机器
+ZOTERO_MCP_URL="http://192.168.1.100:23120/mcp"
+```
+
+配置后，技能会自动使用该地址进行连接和自动修复。
+
 ### arXiv 引用阈值（可选）
 
 ```bash
@@ -238,6 +264,10 @@ S2_MIN_INTERVAL=1
 ENABLE_GOOGLE_SCHOLAR=false
 VERIFY_SIMILARITY_THRESHOLD=0.80
 CACHE_TTL_DAYS=7
+
+# Zotero MCP 配置（默认本地，按需修改）
+ZOTERO_MCP_URL="http://127.0.0.1:23120/mcp"
+ZOTERO_MCP_TRANSPORT="http"
 ```
 
 ---
