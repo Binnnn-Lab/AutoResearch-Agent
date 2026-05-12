@@ -1,5 +1,19 @@
 # Step 00 - Session Preflight (Hard Gate)
 
+## Visualizer Status Hook (Required)
+
+Before starting Step 00, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status running "环境预检"'`
+
+After Step 00 completes, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status done "环境预检"'`
+
+If blocked/failed, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status error "环境预检"'`
+
 ## Must Read Before Execute
 
 - `SKILL.md`

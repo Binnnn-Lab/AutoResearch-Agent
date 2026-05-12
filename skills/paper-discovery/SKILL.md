@@ -57,6 +57,12 @@ Claude Code MUST **automatically** execute the full four-source search protocol 
   4. SUSPICIOUS/HALLUCINATED papers must NOT be imported
 - Zotero Ingest (Step 06) is BLOCKED until verification (Step 05) completes.
 - If Zotero tools are missing, auto-repair once, then re-preflight.
+- **Mandatory visualizer status write-back** (NO EXCEPTIONS):
+  1. Claude Code MUST write status to `./status.json` (paper-discovery skill directory) throughout execution.
+  2. Before entering each main step (00-08), write `state=running` and `main_step=<step name>`.
+  3. On step completion/failure, write final state for that step (`done` or `error`).
+  4. If `sub_steps` exist, their status MUST be written by scripts/commands and not fabricated by frontend.
+  5. Preferred path: use repository scripts that already source `scripts/init.sh` and call `write_status` / `write_status_json`.
 
 ## Required Preflight Inputs
 

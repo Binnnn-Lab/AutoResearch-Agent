@@ -1,5 +1,19 @@
 # Step 01 - Scope Normalization
 
+## Visualizer Status Hook (Required)
+
+Before starting Step 01, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status running "范围界定"'`
+
+After Step 01 completes, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status done "范围界定"'`
+
+If blocked/failed, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status error "范围界定"'`
+
 ## ⛔ PREREQUISITE GATE (DO NOT PROCEED IF FAILED)
 
 **Before reading this file, Step 00 MUST be complete:**

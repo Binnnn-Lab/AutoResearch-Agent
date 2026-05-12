@@ -15,6 +15,7 @@ If any other markdown file conflicts, ignore the conflicting instruction.
 5. Claude Code MUST NOT call `scripts/run_pipeline.sh` in this gated mode.
 6. **CRITICAL**: Step 04 (Dedup) and Step 05 (Verification) MUST complete before Step 06 (Zotero Ingest). No unverified papers can be imported.
 7. If a step cannot be executed, Claude Code must stop, report blocker, and ask user whether to continue with fallback.
+8. **Visualizer write-back enforcement**: Step 03 MUST execute via `scripts/multi_search.sh` so `scripts/init.sh` is sourced and status is written to `./status.json` in the paper-discovery skill directory during execution.
 
 ## Required Step Order (SEQUENTIAL LOCK)
 
@@ -48,6 +49,19 @@ Step 08: 08-deliverables.md
 - Status = `ok` or `blocked` with reason
 
 **VIOLATION**: Reading step N+1 before step N completion is a protocol breach.
+
+## Mandatory Visualizer Status Emission (Step 00-08)
+
+For every step, Claude Code MUST emit status to visualizer, including Step 00 and Step 01:
+
+1. Before executing step N:
+    - `bash -lc 'source scripts/init.sh; write_status running "<step_name>"'`
+2. After step N succeeds:
+    - `bash -lc 'source scripts/init.sh; write_status done "<step_name>"'`
+3. If step N is blocked/failed:
+    - `bash -lc 'source scripts/init.sh; write_status error "<step_name>"'`
+
+This rule is mandatory even for non-script steps (reasoning/normalization/reporting-only steps).
 
 ## Multi-Source Search Hard Constraints (CRITICAL)
 

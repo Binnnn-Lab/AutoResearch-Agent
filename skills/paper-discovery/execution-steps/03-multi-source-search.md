@@ -1,5 +1,19 @@
 # Step 03 - Multi-Source Search (MANDATORY FOUR-SOURCE EXECUTION)
 
+## Visualizer Status Hook (Required)
+
+Before starting Step 03, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status running "多源检索"'`
+
+After Step 03 completes, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status done "多源检索"'`
+
+If blocked/failed, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status error "多源检索"'`
+
 ## ⛔ PREREQUISITE GATE (DO NOT PROCEED IF FAILED)
 
 **Before reading this file, Step 02 MUST be complete:**
@@ -42,13 +56,22 @@
 
 ## Required Source Order (STRICT)
 
+## Mandatory Execution Entry (Status Write-Back Required)
+
+Claude Code MUST execute Step 03 through the repository wrapper below so visualizer status updates are emitted:
+
+```
+scripts/multi_search.sh <query> <limit> <year_min>
+```
+
+Reason: `multi_search.sh` sources `scripts/init.sh` and continuously calls `write_status_json` for source/sub-step progress.
+Directly calling raw source scripts as the primary path is NOT allowed in visualizer mode.
+
 ### Source 1: OpenAlex (MANDATORY)
 
 Purpose: Primary academic paper retrieval
 
-```
-scripts/openalex_search.sh <query> <limit>
-```
+`multi_search.sh` internally executes OpenAlex in required order.
 
 **MUST execute regardless of any other considerations**
 
@@ -56,11 +79,7 @@ scripts/openalex_search.sh <query> <limit>
 
 Purpose: Extended academic paper coverage
 
-```
-scripts/s2_search.sh <query> <limit>
-OR
-scripts/s2_bulk_search.sh <query> <limit>
-```
+`multi_search.sh` internally executes Semantic Scholar in required order.
 
 **MUST execute even if OpenAlex returned 100+ papers**
 **MUST execute even if OpenAlex returned 0 papers**
@@ -69,9 +88,7 @@ scripts/s2_bulk_search.sh <query> <limit>
 
 Purpose: Preprint and cutting-edge research retrieval
 
-```
-scripts/arxiv_search.sh <query> <limit>
-```
+`multi_search.sh` internally executes arXiv in required order.
 
 **MUST execute even if OpenAlex + S2 already covered the topic**
 **MUST execute even if previous sources returned empty results**
@@ -80,9 +97,7 @@ scripts/arxiv_search.sh <query> <limit>
 
 Purpose: **REQUIRED** coverage of recent 2-year papers (current year and previous year)
 
-```
-scripts/google_scholar_search.py <query> --years "<current_year-1>,<current_year>"
-```
+`multi_search.sh` internally executes Google Scholar in required order.
 
 **THIS IS NOT OPTIONAL SUPPLEMENTATION**
 **THIS IS A MANDATORY SOURCE for recent paper coverage**

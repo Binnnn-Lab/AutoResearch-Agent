@@ -8,6 +8,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./init.sh
 source "$SCRIPT_DIR/init.sh"
 
+# Emit visualizer status: starting filter/selection step
+write_status "running" "过滤与分拣"
+
 BIB_FILE="${1:-}"
 VERIFY_FILE="${2:-}"
 OUTPUT_FILE="${3:--}"
@@ -143,4 +146,11 @@ if [[ "$OUTPUT_FILE" == "-" ]]; then
 else
     "$PYTHON_BIN" "$TMP_DIR/filter.py" > "$OUTPUT_FILE"
     echo "[filter] Verified BibTeX saved to: $OUTPUT_FILE" >&2
+fi
+
+# Emit visualizer status: filter finished
+if [[ "$OUTPUT_FILE" != "-" ]]; then
+    write_status_json "{\"state\":\"done\",\"main_step\":\"过滤与分拣\",\"artifacts\":[\"$OUTPUT_FILE\"],\"executed\":true}"
+else
+    write_status "done" "过滤与分拣"
 fi

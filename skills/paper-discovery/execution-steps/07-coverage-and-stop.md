@@ -1,5 +1,19 @@
 # Step 07 - Coverage and Stop Decision
 
+## Visualizer Status Hook (Required)
+
+Before starting Step 07, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status running "覆盖性检查"'`
+
+After Step 07 completes, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status done "覆盖性检查"'`
+
+If blocked/failed, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status error "覆盖性检查"'`
+
 ## ⛔ PREREQUISITE GATE (DO NOT PROCEED IF FAILED)
 
 **Before reading this file, Step 06 MUST be complete:**

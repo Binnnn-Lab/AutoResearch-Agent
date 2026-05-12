@@ -1,0 +1,9 @@
+{
+  "pollIntervalMs": 3000,
+  "statusSource": {
+    "type": "url", 
+    "url": "http://localhost:8000/claude-status" 
+  },
+  "resultsDir": "../paper-discovery/data/results",
+  "port": 5173
+}

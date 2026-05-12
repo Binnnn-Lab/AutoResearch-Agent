@@ -1,5 +1,19 @@
 # Step 05 - BibTeX and Verification
 
+## Visualizer Status Hook (Required)
+
+Before starting Step 05, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status running "BibTeX 与验证"'`
+
+After Step 05 completes, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status done "BibTeX 与验证"'`
+
+If blocked/failed, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status error "BibTeX 与验证"'`
+
 ## ⛔ PREREQUISITE GATE (DO NOT PROCEED IF FAILED)
 
 **Before reading this file, Step 04 MUST be complete:**

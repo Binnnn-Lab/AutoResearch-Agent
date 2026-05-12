@@ -1,5 +1,19 @@
 # Step 06 - Zotero Ingest
 
+## Visualizer Status Hook (Required)
+
+Before starting Step 06, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status running "Zotero 导入"'`
+
+After Step 06 completes, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status done "Zotero 导入"'`
+
+If blocked/failed, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status error "Zotero 导入"'`
+
 ## ⛔ PREREQUISITE GATE (DO NOT PROCEED IF FAILED)
 
 **Before reading this file, Step 05 MUST be complete:**

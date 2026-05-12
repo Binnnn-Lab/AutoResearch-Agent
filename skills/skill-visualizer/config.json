@@ -1,0 +1,9 @@
+{
+  "pollIntervalMs": 3000,
+  "statusSource": {
+    "type": "file",
+    "path": "./status.json"
+  },
+  "historyFile": "./status-history.jsonl",
+  "port": 5173
+}

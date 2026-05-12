@@ -67,10 +67,11 @@ else
     TMP_DIR="${TMPDIR:-/tmp}/paper_discovery_$$"
     mkdir -p "$TMP_DIR"
 fi
-trap "rm -rf $TMP_DIR" EXIT
+trap 'rm -rf "$TMP_DIR"' EXIT
 
 # Search OpenAlex (highest rate limit, generous)
 echo "[multi-search] Searching OpenAlex..." >&2
+write_status_json "{\"state\":\"running\",\"main_step\":\"多源检索\",\"sub_steps\":[{\"name\":\"OpenAlex\",\"status\":\"running\"}],\"stats\":{}}"
 if bash "$SCRIPT_DIR/openalex_search.sh" "$QUERY" "$LIMIT" "$YEAR_MIN" > "$TMP_DIR/openalex.json" 2>/dev/null; then
     OA_COUNT=$(
         TMP_OPENALEX="$TMP_DIR/openalex.json" "$PYTHON_BIN" << 'PY'
@@ -83,14 +84,17 @@ print(d.get('count', 0))
 PY
     )
     echo "[multi-search] OpenAlex: $OA_COUNT papers" >&2
+    write_status_json "{\"state\":\"running\",\"main_step\":\"多源检索\",\"sub_steps\":[{\"name\":\"OpenAlex\",\"status\":\"done\",\"message\":\"$OA_COUNT papers\"}],\"stats\":{\"openalex\":$OA_COUNT}}"
 else
     echo "[multi-search] OpenAlex: failed (will try cache or skip)" >&2
     echo '{"papers":[]}' > "$TMP_DIR/openalex.json"
+    write_status_json "{\"state\":\"running\",\"main_step\":\"多源检索\",\"sub_steps\":[{\"name\":\"OpenAlex\",\"status\":\"failed\"}],\"stats\":{}}"
 fi
 sleep 0.5
 
 # Search Semantic Scholar
 echo "[multi-search] Searching Semantic Scholar..." >&2
+write_status_json "{\"state\":\"running\",\"main_step\":\"多源检索\",\"sub_steps\":[{\"name\":\"Semantic Scholar\",\"status\":\"running\"}],\"stats\":{}}"
 if bash "$SCRIPT_DIR/s2_search.sh" "$QUERY" "$LIMIT" > "$TMP_DIR/s2.jsonl" 2>/dev/null; then
     S2_COUNT=$(
         TMP_S2="$TMP_DIR/s2.jsonl" "$PYTHON_BIN" << 'PY'
@@ -105,14 +109,17 @@ print(count)
 PY
     )
     echo "[multi-search] Semantic Scholar: $S2_COUNT papers" >&2
+    write_status_json "{\"state\":\"running\",\"main_step\":\"多源检索\",\"sub_steps\":[{\"name\":\"Semantic Scholar\",\"status\":\"done\",\"message\":\"$S2_COUNT papers\"}],\"stats\":{\"s2\":$S2_COUNT}}"
 else
     echo "[multi-search] Semantic Scholar: failed" >&2
     : > "$TMP_DIR/s2.jsonl"
+    write_status_json "{\"state\":\"running\",\"main_step\":\"多源检索\",\"sub_steps\":[{\"name\":\"Semantic Scholar\",\"status\":\"failed\"}],\"stats\":{}}"
 fi
 sleep 1
 
 # Search arXiv
 echo "[multi-search] Searching arXiv..." >&2
+write_status_json "{\"state\":\"running\",\"main_step\":\"多源检索\",\"sub_steps\":[{\"name\":\"arXiv\",\"status\":\"running\"}],\"stats\":{}}"
 if bash "$SCRIPT_DIR/arxiv_search.sh" "$QUERY" "$LIMIT" "$YEAR_MIN" > "$TMP_DIR/arxiv.json" 2>/dev/null; then
     ARX_COUNT=$(
         TMP_ARXIV="$TMP_DIR/arxiv.json" "$PYTHON_BIN" << 'PY'
@@ -125,14 +132,17 @@ print(d.get('count', 0))
 PY
     )
     echo "[multi-search] arXiv: $ARX_COUNT papers" >&2
+    write_status_json "{\"state\":\"running\",\"main_step\":\"多源检索\",\"sub_steps\":[{\"name\":\"arXiv\",\"status\":\"done\",\"message\":\"$ARX_COUNT papers\"}],\"stats\":{\"arxiv\":$ARX_COUNT}}"
 else
     echo "[multi-search] arXiv: failed" >&2
     echo '{"papers":[]}' > "$TMP_DIR/arxiv.json"
+    write_status_json "{\"state\":\"running\",\"main_step\":\"多源检索\",\"sub_steps\":[{\"name\":\"arXiv\",\"status\":\"failed\"}],\"stats\":{}}"
 fi
 
-# Search Google Scholar as an optional final fallback
-if [[ "${ENABLE_GOOGLE_SCHOLAR:-false}" == "true" ]]; then
+# Search Google Scholar as mandatory recent-coverage source
+if [[ "${ENABLE_GOOGLE_SCHOLAR:-true}" == "true" ]]; then
     echo "[multi-search] Searching Google Scholar (fallback)..." >&2
+    write_status_json "{\"state\":\"running\",\"main_step\":\"多源检索\",\"sub_steps\":[{\"name\":\"Google Scholar\",\"status\":\"running\"}],\"stats\":{}}"
     if "$PYTHON_BIN" "$SCRIPT_DIR/google_scholar_search.py" "$QUERY" "$LIMIT" "$YEAR_MIN" > "$TMP_DIR/google_scholar.json" 2>/dev/null; then
         GS_COUNT=$(
             TMP_GS="$TMP_DIR/google_scholar.json" "$PYTHON_BIN" << 'PY'
@@ -145,17 +155,20 @@ print(d.get('count', 0))
 PY
         )
         echo "[multi-search] Google Scholar: $GS_COUNT papers" >&2
+        write_status_json "{\"state\":\"running\",\"main_step\":\"多源检索\",\"sub_steps\":[{\"name\":\"Google Scholar\",\"status\":\"done\",\"message\":\"$GS_COUNT papers\"}],\"stats\":{\"gs\":$GS_COUNT}}"
     else
         echo "[multi-search] Google Scholar: failed" >&2
         echo '{"papers":[]}' > "$TMP_DIR/google_scholar.json"
+        write_status_json "{\"state\":\"running\",\"main_step\":\"多源检索\",\"sub_steps\":[{\"name\":\"Google Scholar\",\"status\":\"failed\"}],\"stats\":{}}"
     fi
 else
-    echo "[multi-search] Google Scholar: disabled (set ENABLE_GOOGLE_SCHOLAR=true to enable)" >&2
+    echo "[multi-search] Google Scholar: disabled by ENABLE_GOOGLE_SCHOLAR=false" >&2
     echo '{"papers":[]}' > "$TMP_DIR/google_scholar.json"
 fi
 
 # Merge and deduplicate
 echo "[multi-search] Merging and deduplicating..." >&2
+write_status_json "{\"state\":\"running\",\"main_step\":\"去重与分拣\",\"sub_steps\":[],\"stats\":{}}"
 _PD_TMP_DIR="$TMP_DIR"
     export _PD_TMP_DIR
 
@@ -384,3 +397,4 @@ print(json.dumps(output, indent=2))
 EOF
 
 echo "[multi-search] Complete!" >&2
+write_status_json "{\"state\":\"done\",\"main_step\":\"多源检索\",\"artifacts\":[\"$TMP_DIR\"],\"executed\":true}"

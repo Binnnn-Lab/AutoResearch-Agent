@@ -8,6 +8,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./init.sh
 source "$SCRIPT_DIR/init.sh"
+write_status "running" "验证生成"
 BIB_FILE="${1:-}"
 OUTPUT_FILE="${2:--}"
 
@@ -68,6 +69,9 @@ export TMP_DIR
 export SCRIPT_DIR
 TOTAL=$("$PYTHON_BIN" -c "import json, os; print(len(json.load(open(os.path.join(os.environ['TMP_DIR'], 'entries.json')))))")
 echo "[verify] Found $TOTAL BibTeX entries to verify" >&2
+
+# Update visualizer: verification started
+write_status_json "{\"state\":\"running\",\"main_step\":\"验证生成\",\"sub_steps\":[],\"artifacts\":[\"$BIB_FILE\"]}"
 
 # Write the Python verifier script to a temp file
 cat > "$TMP_DIR/verifier.py" << 'PYEOF'
@@ -666,4 +670,11 @@ if [[ "$OUTPUT_FILE" == "-" ]]; then
 else
     "$PYTHON_BIN" "$TMP_DIR/verifier.py" > "$OUTPUT_FILE"
     echo "[verify] Report saved to: $OUTPUT_FILE" >&2
+fi
+
+# Emit visualizer status: verification finished
+if [[ "$OUTPUT_FILE" != "-" ]]; then
+    write_status_json "{\"state\":\"done\",\"main_step\":\"验证生成\",\"artifacts\":[\"$OUTPUT_FILE\"],\"executed\":true}"
+else
+    write_status "done" "验证生成"
 fi

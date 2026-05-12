@@ -8,6 +8,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./init.sh
 source "$SCRIPT_DIR/init.sh"
 
+# Emit visualizer status: starting BibTeX generation
+write_status "running" "BibTeX 与验证"
+
 PAPERS_FILE="${1:-}"
 OUTPUT_FILE="${2:--}"
 
@@ -211,4 +214,11 @@ if [[ "$OUTPUT_FILE" == "-" ]]; then
 else
     "$PYTHON_BIN" "$TMP_DIR/generator.py" > "$OUTPUT_FILE"
     echo "[bibtex] Saved to: $OUTPUT_FILE" >&2
+fi
+
+# Emit visualizer status: finished BibTeX generation
+if [[ "$OUTPUT_FILE" != "-" ]]; then
+    write_status_json "{\"state\":\"done\",\"main_step\":\"BibTeX 与验证\",\"artifacts\":[\"$OUTPUT_FILE\"],\"executed\":true}"
+else
+    write_status "done" "BibTeX 与验证"
 fi

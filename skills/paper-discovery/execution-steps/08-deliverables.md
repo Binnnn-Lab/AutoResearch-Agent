@@ -1,5 +1,19 @@
 # Step 08 - Deliverables
 
+## Visualizer Status Hook (Required)
+
+Before starting Step 08, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status running "交付物生成"'`
+
+After Step 08 completes, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status done "交付物生成"'`
+
+If blocked/failed, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status error "交付物生成"'`
+
 ## ⛔ PREREQUISITE GATE (DO NOT PROCEED IF FAILED)
 
 **Before reading this file, Step 07 MUST be complete:**

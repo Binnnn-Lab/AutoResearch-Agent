@@ -8,6 +8,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./init.sh
 source "$SCRIPT_DIR/init.sh"
 
+# Emit visualizer status: start query expansion
+write_status "running" "查询扩展"
+
 TOPIC="${1:-}"
 OUTPUT_FILE="${2:--}"
 
@@ -195,3 +198,10 @@ PYEOF
 
 # 执行 Python 脚本
 "$PYTHON_BIN" "$TMP_PY" "$TOPIC" "$OUTPUT_FILE"
+
+# Emit visualizer status: finished query expansion (include output file if any)
+if [ "$OUTPUT_FILE" != "-" ]; then
+    write_status_json "{\"state\":\"done\",\"main_step\":\"查询扩展\",\"artifacts\":[\"$OUTPUT_FILE\"],\"executed\":true}"
+else
+    write_status "done" "查询扩展"
+fi

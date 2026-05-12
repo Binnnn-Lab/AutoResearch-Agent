@@ -1,5 +1,19 @@
 # Step 04 - Dedup and Triage
 
+## Visualizer Status Hook (Required)
+
+Before starting Step 04, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status running "去重与分拣"'`
+
+After Step 04 completes, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status done "去重与分拣"'`
+
+If blocked/failed, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status error "去重与分拣"'`
+
 ## ⛔ PREREQUISITE GATE (DO NOT PROCEED IF FAILED)
 
 **Before reading this file, Step 03 MUST be complete:**

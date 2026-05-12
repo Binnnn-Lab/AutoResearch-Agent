@@ -1,5 +1,19 @@
 # Step 02 - Query Expansion
 
+## Visualizer Status Hook (Required)
+
+Before starting Step 02, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status running "查询扩展"'`
+
+After Step 02 completes, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status done "查询扩展"'`
+
+If blocked/failed, MUST run:
+
+`bash -lc 'source scripts/init.sh; write_status error "查询扩展"'`
+
 ## ⛔ PREREQUISITE GATE (DO NOT PROCEED IF FAILED)
 
 **Before reading this file, Step 01 MUST be complete:**
