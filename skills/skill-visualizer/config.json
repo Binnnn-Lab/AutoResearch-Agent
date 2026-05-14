@@ -2,8 +2,8 @@
   "pollIntervalMs": 3000,
   "statusSource": {
     "type": "file",
-    "path": "./status.json"
+    "path": "../paper-visualizer/status.json"
   },
-  "historyFile": "./status-history.jsonl",
+  "historyFile": "../paper-visualizer/status-history.jsonl",
   "port": 5173
 }

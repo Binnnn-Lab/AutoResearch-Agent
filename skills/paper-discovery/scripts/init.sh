@@ -70,8 +70,8 @@ success_msg() {
 # --- Visualizer 状态写入支持 ---
 # 默认将状态写入当前 skill 目录下的 status.json，
 # 可通过环境变量 VISUALIZER_STATUS_FILE 覆盖。
-VISUALIZER_STATUS_FILE="${VISUALIZER_STATUS_FILE:-$PAPER_DISCOVERY_SKILL_ROOT/status.json}"
-VISUALIZER_HISTORY_FILE="${VISUALIZER_HISTORY_FILE:-$PAPER_DISCOVERY_SKILL_ROOT/status-history.jsonl}"
+VISUALIZER_STATUS_FILE="${VISUALIZER_STATUS_FILE:-$PAPER_DISCOVERY_SKILL_ROOT/../paper-visualizer/status.json}"
+VISUALIZER_HISTORY_FILE="${VISUALIZER_HISTORY_FILE:-$PAPER_DISCOVERY_SKILL_ROOT/../paper-visualizer/status-history.jsonl}"
 
 # 为单次执行生成稳定 run_id（可由外部预设覆盖）
 if [[ -z "${VISUALIZER_RUN_ID:-}" ]]; then
@@ -101,9 +101,91 @@ write_status_json() {
 
     mkdir -p "$(dirname "$VISUALIZER_HISTORY_FILE")" 2>/dev/null || true
     if [[ -n "$payload" ]]; then
+        # Try to normalize payload JSON and map known ids to friendly names using Python if available.
+        if [[ -n "${PYTHON_BIN:-}" ]] && command -v "$PYTHON_BIN" >/dev/null 2>&1; then
+            mapped="$(printf '%s' "$payload" | "$PYTHON_BIN" -c '
+import sys, json, re
+s = sys.stdin.read()
+try:
+    d = json.loads(s)
+except Exception:
+    print(s)
+    sys.exit(0)
+
+idmap = {
+    "zotero-mcp": "检查 Zotero 可用性",
+    "zotero": "Zotero 操作",
+    "openalex": "OpenAlex 检索",
+    "semantic_scholar": "Semantic Scholar 检索",
+    "google_scholar": "Google Scholar 检索",
+    "arxiv": "arXiv 检索",
+    "merge": "合并与去重",
+    "dedupe": "去重",
+}
+
+def slug_to_label(x):
+    if not x: return x
+    x = re.sub(r"[\-_\.]+", " ", x)
+    parts = [p.capitalize() for p in x.split() if p]
+    return " ".join(parts)
+
+def id_to_label(x):
+    if not x: return x
+    k = x.lower()
+    if k in idmap:
+        return idmap[k]
+    for key in idmap:
+        if key in k:
+            return idmap[key]
+    return slug_to_label(x)
+
+# Normalize sub_steps
+if isinstance(d, dict):
+    if "sub_steps" in d and isinstance(d["sub_steps"], list):
+        new_sub = []
+        for item in d["sub_steps"]:
+            if isinstance(item, str):
+                new_sub.append({"id": item, "name": id_to_label(item)})
+            elif isinstance(item, dict):
+                if ("name" not in item or not item.get("name")) and item.get("id"):
+                    item["name"] = id_to_label(item.get("id"))
+                new_sub.append(item)
+            else:
+                new_sub.append(item)
+        d["sub_steps"] = new_sub
+
+    for listkey in ("available_tools", "missing_tools"):
+        if listkey in d and isinstance(d[listkey], list):
+            new_list = []
+            for t in d[listkey]:
+                if isinstance(t, str):
+                    new_list.append({"id": t, "name": id_to_label(t)})
+                elif isinstance(t, dict):
+                    if ("name" not in t or not t.get("name")) and t.get("id"):
+                        t["name"] = id_to_label(t.get("id"))
+                    new_list.append(t)
+                else:
+                    new_list.append(t)
+            d[listkey] = new_list
+
+    
+    try:
+        out = json.dumps(d, ensure_ascii=False)
+        print(out)
+    except Exception:
+        print(s)
+')"
+            # If python produced output, replace payload
+            if [[ -n "$mapped" ]]; then
+                payload="$mapped"
+            fi
+        fi
+
+        # Ensure run_id present in payload JSON when appending to history
         if printf '%s' "$payload" | grep -q '"run_id"'; then
             printf '%s\n' "$payload" >>"$VISUALIZER_HISTORY_FILE"
         else
+            # Inject run_id field at the start of JSON object
             payload="$(printf '%s' "$payload" | sed 's/^{/{"run_id":"'"$VISUALIZER_RUN_ID"'",/')"
             printf '%s\n' "$payload" >"$dest"
             printf '%s\n' "$payload" >>"$VISUALIZER_HISTORY_FILE"
