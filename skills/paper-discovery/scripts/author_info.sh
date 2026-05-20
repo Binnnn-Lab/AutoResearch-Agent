@@ -6,16 +6,9 @@
 
 set -e
 
-# 初始化
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILL_ROOT="$(dirname "$SCRIPT_DIR")"
-
-# 加载配置
-if [[ -f "$SKILL_ROOT/.env" ]]; then
-    set -a
-    source "$SKILL_ROOT/.env"
-    set +a
-fi
+# shellcheck source=./init.sh
+source "$SCRIPT_DIR/init.sh"
 
 # 参数
 AUTHOR_ID="${1:-}"
@@ -26,8 +19,8 @@ if [[ -z "$AUTHOR_ID" ]]; then
 fi
 
 # Rate limiting
-RATE_LIMIT_FILE="/tmp/.s2_rate_limit"
-MIN_INTERVAL="${S2_MIN_INTERVAL:-1}"
+RATE_LIMIT_FILE="${S2_RATE_LIMIT_FILE}"
+MIN_INTERVAL="${S2_MIN_INTERVAL}"
 
 if [[ -f "$RATE_LIMIT_FILE" ]]; then
     last_time=$(cat "$RATE_LIMIT_FILE" 2>/dev/null || echo "0")

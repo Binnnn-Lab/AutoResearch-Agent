@@ -36,7 +36,7 @@ rate_limit_wait() {
 }
 
 ENCODED_ID="$(printf '%s' "$PAPER_ID" | jq -sRr @uri)"
-FIELDS="paperId,title,year,authors,venue,journal,citationCount,externalIds,url,abstract"
+FIELDS="paperId,title,year,authors,venue,journal,citationCount,externalIds,url,openAccessPdf,abstract"
 
 rate_limit_wait
 
@@ -64,18 +64,28 @@ case "$HTTP_CODE" in
                 else
                     "normal"
                 end) as $arxiv_status
-             | {
-                    paperId: .paperId,
+                  | (.externalIds.DOI // "") as $doi
+                  | (.externalIds.ArXiv // "") as $arxiv
+                  | ((if $doi != "" then ("https://doi.org/" + $doi)
+                  elif $arxiv != "" then ("https://arxiv.org/abs/" + $arxiv)
+                  elif (.openAccessPdf.url // "") != "" then .openAccessPdf.url
+                  else (.url // "") end)) as $best_url
+                  | {
+                      paperId: .paperId,
+                      paper_id: .paperId,
                     title: .title,
                     year: .year,
                     venue: ($venue // "N/A"),
                     citations: .citationCount,
-                    doi: .externalIds.DOI,
-                    arxiv_id: .externalIds.ArXiv,
-                    url: .url,
+                      citation_count: (.citationCount // 0),
+                      doi: ($doi | if . == "" then null else . end),
+                      arxiv_id: ($arxiv | if . == "" then null else . end),
+                      url: $best_url,
+                      pdf_url: (.openAccessPdf.url // null),
                     abstract: (.abstract // ""),
                     is_arxiv: $is_arxiv,
                     arxiv_status: $arxiv_status,
+                      source: "semantic_scholar",
                     authors: [.authors[]? | {
                         name: .name,
                         id: .authorId

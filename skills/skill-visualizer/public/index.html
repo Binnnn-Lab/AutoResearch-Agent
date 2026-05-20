@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Skill Visualizer</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="dashboard">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">PD</div>
+        <div>
+          <div class="title">Paper Discovery</div>
+          <div class="subtitle">智能论文发现系统</div>
+        </div>
+      </div>
+      <div class="top-right">已连接</div>
+    </header>
+
+    <div class="layout">
+      <aside class="left-panel card">
+        <div class="progress-wrap">
+          <div class="progress-label">总体进度</div>
+          <div class="progress-bar"><div id="global-progress" class="progress-inner" style="width:0%"></div></div>
+          <div id="progress-percent" class="progress-percent">0%</div>
+        </div>
+        <div class="sidebar-head">
+          <div class="sidebar-title">执行步骤</div>
+        </div>
+        <nav id="steps-list" class="steps-list"></nav>
+        <div class="sidebar-head history-head">
+          <div class="sidebar-title">步骤快照</div>
+          <button id="history-live-btn" class="btn mini">查看当前步骤</button>
+        </div>
+        <div id="sidebar-history-list" class="sidebar-history-list">暂无步骤快照</div>
+      </aside>
+
+      <main class="center-panel">
+        <section class="card detail-card">
+          <div class="detail-header">
+            <h2 id="detail-title">-</h2>
+            <div id="detail-status" class="detail-status">-</div>
+          </div>
+          <div id="detail-substeps" class="detail-substeps"></div>
+          <pre id="raw-json" class="raw-json"></pre>
+        </section>
+      </main>
+
+
+    </div>
+    <footer class="footer">本地运行 · 轮询后端以获取最新状态</footer>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
